@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!--<meta charset="utf-8">-->
+    <title></title>
+  </head>
+  <body>
+    <canvas id="c1" width="640" height="480"></canvas>
+    <script type="text/javascript"src="./js/game_programming_support_lib.js">
+
+    </script>
+    <script type="text/javascript">
+      function $(id){
+        return document.getElementById(id);
+      }
+
+      var iobj=new Image();
+      var cobj=new Image();
+      var loaded=0;
+
+      var Character=function(x,y,w,h,imgf,rx,ry){
+        this.x=x;
+        this.y=y;
+        this.w=w;
+        this.h=h;
+        this.iloaded=0;
+        this.iobj=new Image();
+        this.iobj.src=imgf;
+        this.iobj.onload=function(){
+          loaded++;
+        };
+        this.rectx=rx;
+        this.recty=ry;
+        this.rectw=64;
+        this.recth=64;
+        this.startx=x;
+        this.starty=y;
+        this.dirx=0;
+        this.diry=0;
+      }
+      //Character.prototype={
+      //  walk : function(x,y){
+      //    this.x+=x;
+      //    this.y+=y;
+      //  }
+      //}
+      Character.prototype.walk=function(){
+        this.x+=this.dirx;
+        this.y+=this.diry;
+        let lengthx=this.x-this.startx;
+        let lengthy=this.y-this.starty;
+
+        if((lengthx*lengthx+lengthy*lengthy)>=128*128){
+          this.changeDir();
+        }
+
+      };
+      Character.prototype.changeDir=function(){
+        this.startx=this.x;
+        this.starty=this.y;
+        this.dirx=(randomValue(3)-1);
+        this.diry=(randomValue(3)-1);
+        if(this.dirx==0&&this.diry==0)this.changeDir();
+      }
+    Character.prototype.draw = function(ctx){
+        ctx.drawImage(this.iobj,this.rectx,this.recty,this.rectw,this.recth,this.x,this.y,this.w,this.h);
+      };
+
+      var chri=new Character(128,128,64,64,"chrs.png",0,128);
+      chri.changeDir();
+
+      window.onload=function(){
+        iobj.src="maps.png";
+        iobj.onload=function(){
+          loaded++;
+        }
+        idle();
+      }
+      function idle(){
+        var t;
+        if(loaded>=2){
+          t=setTimeout(renderer,16);
+        }else{
+          t=setTimeout(idle,16);
+        }
+      }
+      function renderer(){
+        var ctx=gpsl.$("c1").getContext("2d");
+        ctx.drawImage(iobj,0,0,640,480,0,0,640,480);
+        //ctx.fillStyle="white";
+        //ctx.font=24+"px 'MS ゴシック'";
+        //ctx.fillText(c,100,24);
+        chri.walk();
+        chri.draw(ctx);
+
+        var t=setTimeout(renderer,16);
+      }
+      function randomValue(num){
+        return Math.floor(Math.random()*num);
+      }
+      //var testarray=[];
+      //testarray[0]=[];
+      //testarray[1]=[];
+      //testarray[2]=[];
+      //testarray[3]=[];
+      //testarray[0]["hp"]=30;
+      //testarray[0]["name"]="hero1";
+      //testarray[1]["hp"]=40;
+      //testarray[1]["name"]="hero2";
+      //testarray[2]["hp"]=50;
+      //testarray[2]["name"]="hero3";
+      //testarray[3]["hp"]=60;
+      //testarray[3]["name"]="hero4";
+
+      var testarray={
+        "name":"myname",
+        "hp"  :520,
+        "atk" :23
+      };
+
+      console.log(JSON.stringify(testarray));
+      //document.body.appendChild(iobj);
+      //var ctx=$("c1").getContext("2d");
+      //ctx.drawImage(iobj,0,0,640,480,0,0,640,480);
+      //ctx.drawImage(iobj,0,0);
+    </script>
+  </body>
+</html>
