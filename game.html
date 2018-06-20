@@ -10,9 +10,6 @@
 
     </script>
     <script type="text/javascript">
-      function $(id){
-        return document.getElementById(id);
-      }
 
       var iobj=new Image();
       var cobj=new Image();
@@ -37,6 +34,10 @@
         this.starty=y;
         this.dirx=0;
         this.diry=0;
+        this.anim_dirIndex=0;
+        this.anim_pattern=0;
+        this.anim_span=0;
+        this.anim_span_max=20;
       }
       //Character.prototype={
       //  walk : function(x,y){
@@ -50,20 +51,34 @@
         let lengthx=this.x-this.startx;
         let lengthy=this.y-this.starty;
 
-        if((lengthx*lengthx+lengthy*lengthy)>=128*128){
+        if((lengthx*lengthx+lengthy*lengthy)>=64*64){
           this.changeDir();
         }
-
+        this.anim_span++;
+        if(this.anim_span==this.anim_span_max){
+          this.anim_span=0;
+          this.anim_pattern++;
+          if(this.anim_pattern==3)this.anim_pattern=0;
+        }
       };
       Character.prototype.changeDir=function(){
+        const directionArrayX=[0,-1,1,0];
+        const directionArrayY=[1,0,0,-1];
+        var dirIndex=randomValue(4);
+        this.dirx=directionArrayX[dirIndex];
+        this.diry=directionArrayY[dirIndex];
         this.startx=this.x;
         this.starty=this.y;
-        this.dirx=(randomValue(3)-1);
-        this.diry=(randomValue(3)-1);
-        if(this.dirx==0&&this.diry==0)this.changeDir();
+
+        this.anim_dirIndex=dirIndex;
+        //this.dirx=(randomValue(3)-1);
+        //this.diry=(randomValue(3)-1);
+        //if(this.dirx==0&&this.diry==0)this.changeDir();
       }
-    Character.prototype.draw = function(ctx){
-        ctx.drawImage(this.iobj,this.rectx,this.recty,this.rectw,this.recth,this.x,this.y,this.w,this.h);
+      Character.prototype.draw = function(ctx){
+        let rectx=this.rectx+this.anim_pattern*this.rectw;
+        let recty=this.recty+this.anim_dirIndex*this.recth;
+        ctx.drawImage(this.iobj,rectx,recty,this.rectw,this.recth,this.x,this.y,this.w,this.h);
       };
 
       var chri=new Character(128,128,64,64,"chrs.png",0,128);
@@ -98,27 +113,7 @@
       function randomValue(num){
         return Math.floor(Math.random()*num);
       }
-      //var testarray=[];
-      //testarray[0]=[];
-      //testarray[1]=[];
-      //testarray[2]=[];
-      //testarray[3]=[];
-      //testarray[0]["hp"]=30;
-      //testarray[0]["name"]="hero1";
-      //testarray[1]["hp"]=40;
-      //testarray[1]["name"]="hero2";
-      //testarray[2]["hp"]=50;
-      //testarray[2]["name"]="hero3";
-      //testarray[3]["hp"]=60;
-      //testarray[3]["name"]="hero4";
 
-      var testarray={
-        "name":"myname",
-        "hp"  :520,
-        "atk" :23
-      };
-
-      console.log(JSON.stringify(testarray));
       //document.body.appendChild(iobj);
       //var ctx=$("c1").getContext("2d");
       //ctx.drawImage(iobj,0,0,640,480,0,0,640,480);
