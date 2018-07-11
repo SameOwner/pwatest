@@ -26,15 +26,9 @@
         3:2,
         4:0
       }
-      var ANIM_DIR_TARGET={
-        6:0,
-        5:0,
-        2:3,
-        4:0,
-        1:3,
-        3:0,
-        0:3
-      };
+      const directionArrayX=[0,-1,1,0];
+      const directionArrayY=[1,0,0,-1];
+
       var Character=function(x,y,w,h,imgf,rx,ry,movetype,dirx,diry){
         this.movetype=movetype;
         this.x=x;
@@ -71,10 +65,7 @@
         let lengthx=this.x-this.startx;
         let lengthy=this.y-this.starty;
         if(this.movetype==CHARACTER_MODE_TYPE.TARGETWALK){
-          if((lengthx*lengthx+lengthy*lengthy)<=1*1){
-            this.dirx=0;
-            this.diry=0;
-          }
+          this.targetWalk();
         }else {
           if((lengthx*lengthx+lengthy*lengthy)>=64*64){
             this.changeDir();
@@ -87,10 +78,37 @@
           if(this.anim_pattern==3)this.anim_pattern=0;
         }
       };
+      Character.prototype.targetWalk=function(){
+        const minlength=2;
+
+        let dirIndex=-1;
+        if(Math.abs(this.x - this.startx)>minlength){
+          if(this.x < this.startx){
+    				dirIndex = 2;
+    			}else if(this.x > this.startx){
+    				dirIndex = 1;
+    			}
+        }
+        if(Math.abs(this.y - this.starty)>minlength){
+          if(this.y < this.starty){
+    				dirIndex = 0;
+    			}else if(this.y > this.starty){
+    				dirIndex = 3;
+    			}
+        }
+        if(dirIndex==-1){
+          this.dirx=0;
+          this.diry=0;
+          this.anim_dirIndex=0;
+          return;
+        }
+        this.dirx=directionArrayX[dirIndex];
+        this.diry=directionArrayY[dirIndex];
+        this.anim_dirIndex=dirIndex;
+
+      }
       Character.prototype.changeDir=function(){
         if(this.movetype!=CHARACTER_MODE_TYPE.RANDOM)return;
-        const directionArrayX=[0,-1,1,0];
-        const directionArrayY=[1,0,0,-1];
         var dirIndex=gpsl.randomValue(4);
         this.dirx=directionArrayX[dirIndex];
         this.diry=directionArrayY[dirIndex];
@@ -110,8 +128,7 @@
       }
       Character.prototype.draw = function(ctx){
         let dir_index;
-        if(this.movetype!=CHARACTER_MODE_TYPE.TARGETWALK) dir_index=ANIM_DIR[this.dirx+this.diry*2+2];
-        else dir_index=ANIM_DIR_TARGET[Math.sign(this.dirx)+Math.sign(this.diry)*2+3];
+        dir_index=ANIM_DIR[this.dirx+this.diry*2+2];
         let rectx=this.rectx+this.anim_pattern*this.rectw;
         let recty=this.recty+dir_index*this.recth;
         ctx.drawImage(this.iobj,rectx,recty,this.rectw,this.recth,this.x,this.y,this.w,this.h);
@@ -170,6 +187,12 @@
         let btny=e.pageY;
         chri[0].setDir(btnx,btny);
         console.log(`${btnx},${btny}`);
+      }
+      function mathlength(x1,y1,x2,y2){
+        distx=x2-x1;
+        disty=y2-y1;
+        let dirLength=Math.sqrt(distx*distx+disty*disty);
+        return dirLength;
       }
     </script>
   </body>

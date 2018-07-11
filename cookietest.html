@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <script type="text/javascript">
+      let log=document.cookie;
+      let va=log.split('=');
+      console.log(log);
+      saveCookie('a',20);
+      saveCookie('b',20);
+      console.log(getCookie('a'));
+
+      function saveCookie(key,value){
+        document.cookie=key+'='+value+';max-age=360000';
+      }
+      function getCookie(key){
+        let cookieLog=document.cookie;
+        let splitLog=cookieLog.split(';');
+        for(let cookie in splitLog){
+          let key_value=splitLog[cookie].split('=');
+          if(key_value.length<=1)continue;
+          let data=key_value[0];
+          let data1=data.toString();
+          let data2=key.toString();
+          if(data.toString()==key.toString()){
+            return key_value[1];
+          }
+        }
+        return undefined;
+      }
+    </script>
+  </body>
+</html>
