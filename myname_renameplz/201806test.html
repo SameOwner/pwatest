@@ -8,6 +8,7 @@
     <canvas id="c1" width="640" height="480">a</canvas>
     <script type="text/javascript" src="./js/game_programming_support_lib.js"></script>
     <script type="text/javascript" src="./js/Define.js"></script>
+    <script type="text/javascript" src="./js/Enemy.js"></script>
     <script type="text/javascript">
       class SoundPlayer{
         constructor(filepath){
@@ -36,7 +37,8 @@
       var hitse=new SoundPlayer("se.mp3");
 
       var loaded=0;
-      var aloaded=0;
+      let frameCount=0;
+      let createCount=0;
 
       var CHARACTER_MODE_TYPE={
         RANDOM:0,
@@ -69,6 +71,7 @@
         this.hp=100;
         this._isDead=false;
         this.timer=0;
+        this._attack=1;
       }
       //Character.prototype={
       //  walk : function(x,y){
@@ -86,17 +89,23 @@
           this.hp++;
         }
       };
+      Character.prototype.attack=function(){
+        return this._attack;
+      };
+      Character.prototype.damage=function(attack){
+        this.hp-=attack;
+        if(this.hp<=0)this._isDead=true;
+      };
       Character.prototype.isDead=function(){
         return this._isDead;
-      }
+      };
       Character.prototype.walk=function(){
         this.x+=this.dirx;
         this.y+=this.diry;
         let lengthx=this.x-this.startx;
         let lengthy=this.y-this.starty;
-        if(this.movetype==CHARACTER_MODE_TYPE.TARGETWALK){
-          this.targetWalk();
-        }
+        this.targetWalk();
+
         this.anim_span++;
         if(this.anim_span==this.anim_span_max){
           this.anim_span=0;
@@ -152,7 +161,7 @@
 
       var chri=[];
       chri[0]=new Character(128,128,64,64,"chrs.png",64*0,64*2,1,0);
-
+      let enemys=[];
 
 
       window.onload=function(){
@@ -175,7 +184,7 @@
       }
       function idle(){
         var t;
-        if(loaded>=5){
+        if(loaded>=4){
           aobj.play(true);
           t=setTimeout(renderer,16);
         }else{
@@ -184,10 +193,18 @@
 
         var ctx=gpsl.$("c1").getContext("2d");
         ctx.font="26px 'MS ゴシック'";
-        ctx.fillText("clickplease",30,30);
+        ctx.fillText("提出用ゲーム",30,30);
+        ctx.fillText("クリックしてください",30,80);
       }
       function renderer(){
-
+        frameCount++;
+        if(frameCount>=60){
+          if(createCount<20){
+            frameCount=0;
+            createCount++;
+            enemys.push(new Enemy(128,128,64,64,"chrs.png",64*3,64*2,1,0));
+          }
+        }
         var ctx=gpsl.$("c1").getContext("2d");
         ctx.drawImage(iobj,0,0,640,480,0,0,640,480);
         //ctx.fillStyle="white";
@@ -197,17 +214,28 @@
           chri[i].update();
           chri[i].draw(ctx);
         }
-        let isHit=gpsl.hittest(
-          chri[0].x+(chri[0].w/2),
-          chri[0].y+(chri[0].w/2),
-          (chri[0].w/2),
-          chri[1].x+(chri[1].w/2),
-          chri[1].y+(chri[1].w/2),
-          (chri[1].w/2));
-        if(isHit){
-          hitse.play();
-          console.log();
+        for(let e in enemys){
+          enemys[e].update();
+          enemys[e].draw(ctx);
         }
+        for(let c in chri){
+          for(let e in enemys){
+            let isHit=gpsl.hittest(
+              chri[c].x+(chri[c].w/2),
+              chri[c].y+(chri[c].h/2),
+              (chri[c].w/2),
+              enemys[e].centerX(),
+              enemys[e].centerY(),
+              enemys[e].radius()
+            );
+            if(isHit){
+              hitse.play();
+              chri[c].damage(enemys[e].attack());
+              enemys[e].damage(chri[c].attack());
+            }
+          }
+        }
+        enemys=enemys.filter((enemy)=>{return !enemy.isDead();});
 
         var t=setTimeout(renderer,16);
       }

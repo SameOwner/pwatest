@@ -17,3 +17,12 @@ gpsl.hittest=function(x1,y1,r1,x2,y2,r2){
   let circdist=(r2+r1)*(r2+r1);
   return (circdist>=raddist);
 }
+
+gpsl.isoutoffield=function(x,y){
+  if(x>=gpsl.$("c1").width)return 1;
+  if(y>=gpsl.$("c1").height)return 3;
+  if(x<=0)return 2;
+  if(y<=0)return 0;
+
+  return -1;
+}
