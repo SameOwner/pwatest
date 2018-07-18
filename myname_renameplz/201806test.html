@@ -6,9 +6,8 @@
   </head>
   <body>
     <canvas id="c1" width="640" height="480">a</canvas>
-    <script type="text/javascript" src="./js/game_programming_support_lib.js">
-
-    </script>
+    <script type="text/javascript" src="./js/game_programming_support_lib.js"></script>
+    <script type="text/javascript" src="./js/Define.js"></script>
     <script type="text/javascript">
       class SoundPlayer{
         constructor(filepath){
@@ -44,23 +43,13 @@
         NONE:1,
         TARGETWALK:2
       };
-      var ANIM_DIR={
-        0:3,
-        1:1,
-        2:0,
-        3:2,
-        4:0
-      }
-      const directionArrayX=[0,-1,1,0];
-      const directionArrayY=[1,0,0,-1];
 
-      var Character=function(x,y,w,h,imgf,rx,ry,movetype,dirx,diry){
-        this.movetype=movetype;
+
+      var Character=function(x,y,w,h,imgf,rx,ry,dirx,diry){
         this.x=x;
         this.y=y;
         this.w=w;
         this.h=h;
-        this.iloaded=0;
         this.iobj=new Image();
         this.iobj.src=imgf;
         this.iobj.onload=function(){
@@ -77,6 +66,9 @@
         this.anim_pattern=0;
         this.anim_span=0;
         this.anim_span_max=20;
+        this.hp=100;
+        this._isDead=false;
+        this.timer=0;
       }
       //Character.prototype={
       //  walk : function(x,y){
@@ -84,6 +76,19 @@
       //    this.y+=y;
       //  }
       //}
+      Character.prototype.update=function(){
+        this.walk();
+
+        //0.5秒毎に回復(60fps基準)
+        this.timer++;
+        if(this.timer>=30){
+          this.timer=0;
+          this.hp++;
+        }
+      };
+      Character.prototype.isDead=function(){
+        return this._isDead;
+      }
       Character.prototype.walk=function(){
         this.x+=this.dirx;
         this.y+=this.diry;
@@ -91,10 +96,6 @@
         let lengthy=this.y-this.starty;
         if(this.movetype==CHARACTER_MODE_TYPE.TARGETWALK){
           this.targetWalk();
-        }else {
-          if((lengthx*lengthx+lengthy*lengthy)>=64*64){
-            this.changeDir();
-          }
         }
         this.anim_span++;
         if(this.anim_span==this.anim_span_max){
@@ -132,16 +133,6 @@
         this.anim_dirIndex=dirIndex;
 
       }
-      Character.prototype.changeDir=function(){
-        if(this.movetype!=CHARACTER_MODE_TYPE.RANDOM)return;
-        var dirIndex=gpsl.randomValue(4);
-        this.dirx=directionArrayX[dirIndex];
-        this.diry=directionArrayY[dirIndex];
-        this.startx=this.x;
-        this.starty=this.y;
-
-        this.anim_dirIndex=dirIndex;
-      }
       Character.prototype.setDir=function(posx,posy){
         this.startx=posx;
         this.starty=posy;
@@ -160,8 +151,8 @@
       };
 
       var chri=[];
-      chri[0]=new Character(128,128,64,64,"chrs.png",64*0,64*2,CHARACTER_MODE_TYPE.TARGETWALK,1,0);
-      chri[1]=new Character(400,128,64,64,"chrs.png",64*3,64*2,CHARACTER_MODE_TYPE.RANDOM,-1,0);
+      chri[0]=new Character(128,128,64,64,"chrs.png",64*0,64*2,1,0);
+
 
 
       window.onload=function(){
@@ -203,10 +194,10 @@
         //ctx.font=24+"px 'MS ゴシック'";
         //ctx.fillText(c,100,24);
         for(let i in chri){
-          chri[i].walk();
+          chri[i].update();
           chri[i].draw(ctx);
         }
-        let isHit=hittest(
+        let isHit=gpsl.hittest(
           chri[0].x+(chri[0].w/2),
           chri[0].y+(chri[0].w/2),
           (chri[0].w/2),
@@ -220,11 +211,7 @@
 
         var t=setTimeout(renderer,16);
       }
-      function hittest(x1,y1,r1,x2,y2,r2){
-        let raddist=((x2-x1)*(x2-x1))+((y2-y1)*(y2-y1));
-        let circdist=(r2+r1)*(r2+r1);
-        return (circdist>=raddist);
-      }
+
       function b_push(e){
         let btnx=e.pageX;
         let btny=e.pageY;
@@ -232,12 +219,7 @@
 
         console.log(`${btnx},${btny}`);
       }
-      function mathlength(x1,y1,x2,y2){
-        distx=x2-x1;
-        disty=y2-y1;
-        let dirLength=Math.sqrt(distx*distx+disty*disty);
-        return dirLength;
-      }
+
     </script>
   </body>
 </html>
