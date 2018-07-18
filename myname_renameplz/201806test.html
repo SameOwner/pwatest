@@ -202,7 +202,8 @@
           if(createCount<20){
             frameCount=0;
             createCount++;
-            enemys.push(new Enemy(128,128,64,64,"chrs.png",64*3,64*2,1,0));
+
+            enemys.push(new Enemy(128,128,64,64,"chrs.png",64*3,64*2,0,1));
           }
         }
         var ctx=gpsl.$("c1").getContext("2d");

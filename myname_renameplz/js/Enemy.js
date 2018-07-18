@@ -44,11 +44,12 @@ class Enemy{
   update(){
     this._x+=this.dirx;
     this._y+=this.diry;
-    let lengthx=this._x-this.startx;
-    let lengthy=this._y-this.starty;
     let dir=gpsl.isoutoffield(this.centerX(),this.centerY());
     if(dir!=-1){
       this.setDir(dir);
+    }
+    if(gpsl.mathlength(this.startx,this.starty,this._x,this._y)>=64){
+      this.changeDir();
     }
     this.anim_span++;
     if(this.anim_span==this.anim_span_max){
