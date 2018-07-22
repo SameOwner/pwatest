@@ -39,6 +39,7 @@
       var loaded=0;
       let frameCount=0;
       let createCount=0;
+      let deadCount=0;
 
       var CHARACTER_MODE_TYPE={
         RANDOM:0,
@@ -230,14 +231,19 @@
               enemys[e].radius()
             );
             if(isHit){
-              hitse.play();
               chri[c].damage(enemys[e].attack());
               enemys[e].damage(chri[c].attack());
             }
           }
         }
         enemys=enemys.filter((enemy)=>{return !enemy.isDead();});
+        chri=chri.filter((chr)=>{return !chr.isDead();});
+        if(chri.length==0)alert("gameover");
+        else if(deadCount>=20)alert("gameclear");
 
+        ctx.font="26px 'MS ゴシック'";
+        if(chri.length>0)ctx.fillText(`HP${chri[0].hp}`,30,30);
+        ctx.fillText(`残りの敵${20-deadCount}体`,30,60);
         var t=setTimeout(renderer,16);
       }
 
@@ -245,7 +251,7 @@
         let btnx=e.pageX;
         let btny=e.pageY;
         chri[0].setDir(btnx,btny);
-
+        hitse.play();
         console.log(`${btnx},${btny}`);
       }
 

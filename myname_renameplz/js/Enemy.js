@@ -22,7 +22,7 @@ class Enemy{
     this.anim_span=0;
     this.anim_span_max=20;
 
-    this.hp=30;
+    this.hp=10;
     this._isDead=false;
     this._attack=1;
 
@@ -84,7 +84,10 @@ class Enemy{
   }
   damage(attack){
     this.hp-=attack;
-    if(this.hp<=0)this._isDead=true;
+    if(this.hp<=0&&!this._isDead){
+      this._isDead=true;
+      deadCount++;
+    }
   }
   isDead(){
     return this._isDead;
